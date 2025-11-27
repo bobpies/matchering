@@ -4,6 +4,7 @@ let currentJobId = null;
 let currentComparison = null;
 let rankings = [];
 let allMasterings = [];
+let currentLimiterSettings = {};
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,6 +20,9 @@ function initializeUpload() {
     const refContainer = document.getElementById('reference-container');
     const refDropZone = document.getElementById('reference-drop-zone');
     const refFilesInput = document.getElementById('reference-files-input');
+    const limiterAttackInput = document.getElementById('limiter-attack');
+    const limiterHoldInput = document.getElementById('limiter-hold');
+    const limiterReleaseInput = document.getElementById('limiter-release');
     
     let referenceCount = 0;
     const referenceFiles = [];
@@ -198,6 +202,16 @@ function initializeUpload() {
         referenceFiles.forEach((file, index) => {
             formData.append(`reference_${index + 1}`, file);
         });
+
+        [
+            { input: limiterAttackInput, key: 'limiter_attack' },
+            { input: limiterHoldInput, key: 'limiter_hold' },
+            { input: limiterReleaseInput, key: 'limiter_release' },
+        ].forEach(({ input, key }) => {
+            if (input && input.value.trim() !== '') {
+                formData.append(key, input.value.trim());
+            }
+        });
         
         try {
             showStage('processing');
@@ -234,6 +248,8 @@ async function pollProcessingStatus(jobId) {
             document.getElementById('progress-fill').style.width = progress + '%';
             document.getElementById('processing-text').textContent = 
                 `Processing ${data.completed} of ${data.total} masterings...`;
+            currentLimiterSettings = data.limiter_settings || {};
+            updateLimiterSummary(currentLimiterSettings);
             
             if (data.status === 'completed') {
                 clearInterval(interval);
@@ -546,6 +562,8 @@ async function updateRankingsChart(chartId = 'rankings-chart', listId = 'ranking
                            class="download-btn">Download WAV 16-bit</a>
                         <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24" 
                            class="download-btn">Download WAV 24-bit</a>
+                        <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24_nolimiter" 
+                           class="download-btn">24-bit (No Limiter)</a>
                     </div>
                 </div>
             `).join('');
@@ -587,6 +605,8 @@ function showAllResults() {
                    class="download-btn">Download WAV 16-bit</a>
                 <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24" 
                    class="download-btn">Download WAV 24-bit</a>
+                <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24_nolimiter" 
+                   class="download-btn">24-bit (No Limiter)</a>
             </div>
         </div>
     `).join('');
@@ -607,5 +627,26 @@ function formatFileSize(bytes) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+}
+
+function updateLimiterSummary(settings = {}) {
+    const summaryEl = document.getElementById('limiter-settings-summary');
+    if (!summaryEl) return;
+    const fields = [
+        { key: 'attack', label: 'Attack' },
+        { key: 'hold', label: 'Hold' },
+        { key: 'release', label: 'Release' },
+    ];
+    const parts = fields
+        .map(field => {
+            if (settings[field.key] === undefined) return null;
+            return `${field.label} ${settings[field.key]} ms`;
+        })
+        .filter(Boolean);
+    if (parts.length === 0) {
+        summaryEl.textContent = 'Limiter settings: Default Matchering envelope.';
+    } else {
+        summaryEl.textContent = `Limiter settings: ${parts.join(' • ')}`;
+    }
 }
 

@@ -33,6 +33,7 @@ from flask_cors import CORS
 from werkzeug.utils import secure_filename
 import matchering as mg
 from matchering import Config, Result, pcm16, pcm24
+from matchering.defaults import LimiterConfig
 import soundfile as sf
 import numpy as np
 # MP3 conversion removed - using WAV only
@@ -56,12 +57,40 @@ PREVIEWS_FOLDER.mkdir(exist_ok=True)
 voting_data = {}
 processing_jobs = {}
 
+def parse_limiter_settings(form_data):
+    """Extract optional limiter attack/hold/release overrides from the request."""
+    limiter_fields = {
+        'limiter_attack': 'attack',
+        'limiter_hold': 'hold',
+        'limiter_release': 'release',
+    }
+    settings = {}
+    for form_key, limiter_key in limiter_fields.items():
+        raw_value = form_data.get(form_key)
+        if raw_value in (None, ''):
+            continue
+        try:
+            numeric_value = float(raw_value)
+        except ValueError:
+            raise ValueError(f"Invalid value for {form_key}. Please provide a number.")
+        if numeric_value <= 0:
+            raise ValueError(f"{form_key.replace('_', ' ').title()} must be greater than zero.")
+        settings[limiter_key] = numeric_value
+    return settings
+
+def build_config(limiter_settings=None):
+    """Create a Matchering config, optionally overriding limiter values."""
+    if limiter_settings:
+        limiter = LimiterConfig(**limiter_settings)
+        return Config(limiter=limiter)
+    return Config()
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # MP3 conversion function removed - using WAV only
 
-def process_mastering(target_path, reference_path, job_id, reference_index):
+def process_mastering(target_path, reference_path, job_id, reference_index, limiter_settings=None):
     """Process a single mastering job"""
     try:
         session_folder = RESULTS_FOLDER / job_id
@@ -75,17 +104,21 @@ def process_mastering(target_path, reference_path, job_id, reference_index):
         wav_24bit = session_folder / f"mastered_{reference_index}_24bit.wav"
         preview_wav = preview_folder / f"preview_{reference_index}.wav"
         preview_original_wav = preview_folder / f"preview_{reference_index}_original.wav"
+        wav_24bit_no_limiter = session_folder / f"mastered_{reference_index}_24bit_nolimiter.wav"
         
         # Process with matchering
+        config = build_config(limiter_settings)
         mg.process(
             target=str(target_path),
             reference=str(reference_path),
             results=[
                 pcm16(str(wav_16bit)),
                 pcm24(str(wav_24bit)),
+                Result(str(wav_24bit_no_limiter), subtype="PCM_24", use_limiter=False, normalize=True),
             ],
             preview_target=Result(str(preview_original_wav), subtype="PCM_16"),
             preview_result=Result(str(preview_wav), subtype="PCM_16"),
+            config=config,
         )
         
         return {
@@ -95,6 +128,7 @@ def process_mastering(target_path, reference_path, job_id, reference_index):
             'wav_24bit': str(wav_24bit),
             'preview_wav': str(preview_wav),
             'preview_original_wav': str(preview_original_wav),
+            'wav_24bit_no_limiter': str(wav_24bit_no_limiter),
         }
     except Exception as e:
         print(f"Error processing mastering {reference_index}: {e}")
@@ -114,6 +148,11 @@ def upload_files():
     try:
         if 'target' not in request.files:
             return jsonify({'error': 'No target file provided'}), 400
+        
+        try:
+            limiter_settings = parse_limiter_settings(request.form)
+        except ValueError as validation_error:
+            return jsonify({'error': str(validation_error)}), 400
         
         target_file = request.files['target']
         if target_file.filename == '':
@@ -159,7 +198,8 @@ def upload_files():
             'completed': 0,
             'results': [],
             'errors': [],
-            'target_path': str(target_path)
+            'target_path': str(target_path),
+            'limiter_settings': limiter_settings
         }
         
         # Initialize voting data
@@ -173,7 +213,7 @@ def upload_files():
         def process_all():
             results = []
             for ref_idx, ref_path in reference_paths:
-                result = process_mastering(target_path, ref_path, job_id, ref_idx)
+                result = process_mastering(target_path, ref_path, job_id, ref_idx, limiter_settings=limiter_settings)
                 results.append(result)
                 processing_jobs[job_id]['completed'] += 1
                 if result['success']:
@@ -217,7 +257,8 @@ def get_status(job_id):
         'total': job['total'],
         'completed': job['completed'],
         'results': job['results'],
-        'errors': job['errors']
+        'errors': job['errors'],
+        'limiter_settings': job.get('limiter_settings', {})
     })
 
 @app.route('/api/preview/<job_id>/<int:reference_index>')
@@ -264,8 +305,12 @@ def download_file(job_id, reference_index, format_type):
         file_path = session_folder / f"mastered_{reference_index}_24bit.wav"
         mimetype = 'audio/wav'
         suffix = ' 24bit.wav'
+    elif format_type == 'wav24_nolimiter':
+        file_path = session_folder / f"mastered_{reference_index}_24bit_nolimiter.wav"
+        mimetype = 'audio/wav'
+        suffix = ' 24bit No Limiter.wav'
     else:
-        return jsonify({'error': 'Invalid format. Use wav16 or wav24'}), 400
+        return jsonify({'error': 'Invalid format. Use wav16, wav24, or wav24_nolimiter'}), 400
     
     if file_path.exists():
         # Generate download filename with random code
