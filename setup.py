@@ -7,11 +7,11 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name="matchering",
-    version="2.0.6",
-    author="Sergree",
+    name="matchering-2025",
+    version="2025.1.0",
+    author="Sergree (Original), Modified 2025",
     author_email="sergree@vk.com",
-    description="Audio Matching and Mastering Python Library",
+    description="Audio Matching and Mastering Python Library - 2025 Edition",
     long_description=long_description,
     long_description_content_type="text/markdown",
     install_requires=requirements,

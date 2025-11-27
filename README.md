@@ -1,195 +1,96 @@
-[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://t.me/tribute/app?startapp=de85)
+# Matchering 2025
 
-![Matchering 2.0](https://raw.githubusercontent.com/sergree/matchering/master/images/logo.png)
+Professional audio matching and mastering tool with multi-reference support and intelligent comparison system.
 
-[![License](https://img.shields.io/pypi/l/matchering.svg)](https://pypi.python.org/pypi/matchering/)
-[![PyPI Version](https://badge.fury.io/py/matchering.svg)](https://badge.fury.io/py/matchering)
-[![PyPI Python Versions](https://img.shields.io/pypi/pyversions/matchering.svg)](https://pypi.python.org/pypi/matchering/)
-[![Mentioned in Awesome Python](https://awesome.re/mentioned-badge.svg)](https://github.com/vinta/awesome-python)
-[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+## Features
 
-## Matching + Mastering = ❤️
-
-**[Matchering 2.0]** is a novel **[Containerized Web Application](#docker-image)**, **[Python Library][PyPI]**, and **[ComfyUI Node](#comfyui-node)** for audio matching and [mastering].
-
-🔥 Also integrated in the **[UVR5 Desktop App](https://ultimatevocalremover.com/)**!
-
-It follows a *simple idea* - you take TWO audio files and feed them into **Matchering**: 
-- **TARGET** (the track you want to master, you want it to sound like the reference)
-- **REFERENCE** (another track, like some kind of "wet" popular song, you want your target to sound like it)
-
-Our algorithm matches both of these tracks and provides you the mastered **TARGET** track with the same [RMS], [FR], [peak amplitude] and [stereo width] as the **REFERENCE** track has.
-
-🔥 **[Benn Jordan Matchering review][BennVideo]**:
-> - ***Matchering 2.0 beating all other AI's**! (note: by carefully selecting a proper song as reference)*
-> - *Ranking it no.3 (out of 12) right behind 2 professional master engineers*
-> - *Seems a rock-solid study with 472 judged entries*
-> 
-> *(Thanks to [@bascurtiz](https://github.com/bascurtiz) for [the find](https://github.com/sergree/matchering/issues/59))*
-
-[![Benn Jordan Review Video](http://i3.ytimg.com/vi/wZRV2H4PK0Q/hqdefault.jpg)][BennVideo]
-
-You can try out **Matchering** yourself without having to install it, thanks to the hosting provided by **[Songmastr](https://www.songmastr.com/)**, **[MVSEP](https://mvsep.com/)** and **[Moises](https://moises.ai/)**.
-
-Watch **[the video][Video]**:
-
-[![Matchering 2.0 Promo Video](http://img.youtube.com/vi/8Su5STDYfcA/0.jpg)][Video]
-
-So **Matchering 2.0** will make your song sound the way you want! It opens up a wide range of opportunities:
-- You can make your music instantly sound like your favorite artist's music
-- You can make all the tracks on your new album sound the same very quickly
-- You can find new aspects of your sound in experiments
-- You can do everything as you want! Because of **[Your References, Your Rules.™](https://macprovideo.com/article/audio-software/sound-tools-instant-online-mastering-with-reference-matching-now-in-open-beta)** *(just a little nostalgic note)* 🤭
-
-![Matchering WEB GIF Animation](https://raw.githubusercontent.com/sergree/matchering/master/images/animation.gif "Matchering WEB")
-
-> Differences from the previous major version:
-> - Completely rewritten in [Python 3], based on open source tech stack (no more [MATLAB])
-> - Our own open source [Hyrax] [brickwall limiter] was implemented for it
-> - Processing speed and accuracy have been increased
-> - Now it is [the library][PyPI] that can be connected to **everything** in **the Python world**
-
-If you are looking for a **Matchering paper**, you can read **[this Habr article](https://habr.com/ru/post/709120/)**.
-
-# Installation and Usage
-
-If you are a music producer or an audio engineer, choose the **[Desktop App](#desktop-app---the-easiest-way)** or **[ComfyUI Node](#comfyui-node)**. 
-
-If you are an AI mastering startup, choose the **[Docker Image](#docker-image)**. 
-
-If you are a developer, choose the **[Python Library](#python-library---for-developers)**.
-
-# Desktop App - The Easiest Way
-
-### [NEW! Matchering @ UVR5 Desktop App](https://ultimatevocalremover.com/)
-You can find Matchering under `Choose Process Method > Audio Tools & Choose Audio Tool > Matchering`.
-
-### [Or try WITHOUT Installation](https://www.youtube.com/watch?v=Aw0nH6QqAck)
-
-# ComfyUI Node
-
-### [ComfyUI-Matchering](https://github.com/MuziekMagie/ComfyUI-Matchering)
-
-# Docker Image
-
-### [Windows](https://github.com/sergree/matchering/blob/master/DOCKER_WINDOWS.md)
-### [macOS](https://github.com/sergree/matchering/blob/master/DOCKER_MACOS.md)
-### [Linux](https://github.com/sergree/matchering/blob/master/DOCKER_LINUX.md)
-
-## Updating
-
-If you need to update the version of the installed **Docker Image**, follow **[these instructions](https://github.com/sergree/matchering/blob/master/DOCKER_UPDATING.md)**.
-
-# Python Library - For Developers
+- **Multi-Reference Mastering**: Upload up to 10 reference tracks and generate multiple mastering variations
+- **Hot or Not Comparison**: Interactive hover-to-preview system to compare masterings side-by-side
+- **Real-time Rankings**: Visual chart showing the most popular mastering based on your preferences
+- **Multiple Export Formats**: Download your masterings in WAV 16-bit or WAV 24-bit
+- **Synchronized Previews**: All previews use the same audio segment for fair comparison
 
 ## Installation
 
-**4 GB RAM machine with [Python 3.8.0 or higher][Python 3] is required**
+### Requirements
 
-### libsndfile
+- Python 3.10 or higher (3.14+ supported with fallback)
+- 4 GB RAM minimum
 
-**Matchering 2.0** depends on the **[SoundFile]** library, which depends on the system library **[libsndfile]**. On Windows and macOS, it installs automatically. On Linux, you need to install **[libsndfile]** using your distribution's package manager, for example:
+### Quick Start
 
-```sudo apt update && sudo apt -y install libsndfile1```
-
-### python3-pip
-
-On some Linux distributions, **python3-pip** is not installed by default. For example use this command on Ubuntu Linux to fix this:
-
-```sudo apt -y install python3-pip```
-
-### Matchering Python Package
-
-Finally, install our `matchering` package:
-
-```
-# Linux / macOS
-python3 -m pip install -U matchering
-
-# Windows
-python -m pip install -U matchering
+1. Install dependencies:
+```bash
+pip install -r requirements.txt
 ```
 
-### *(Optional) FFmpeg*
-
-If you would like to enable *MP3 loading support*, you need to install the **[FFmpeg][FFmpeg]** library. For example use this command on Ubuntu Linux:
-
-```sudo apt -y install ffmpeg```
-
-Or follow these instructions: [Windows][FFmpeg-win], [macOS][FFmpeg-mac].
-
-## Quick Example
-
-```python
-import matchering as mg
-
-# Sending all log messages to the default print function
-# Just delete the following line to work silently
-mg.log(print)
-
-mg.process(
-    # The track you want to master
-    target="my_song.wav",
-    # Some "wet" reference track
-    reference="some_popular_song.wav",
-    # Where and how to save your results
-    results=[
-        mg.pcm16("my_song_master_16bit.wav"),
-        mg.pcm24("my_song_master_24bit.wav"),
-    ],
-)
-
+For Python 3.14+:
+```bash
+pip install -r requirements-py314.txt
 ```
 
-You can find more examples in the **[examples directory]**.
+2. Run the application:
+```bash
+python app.py
+```
 
-### Or you can use premade **Matchering 2.0 Command Line Application**: **[matchering-cli]**.
-### Or its enhanced fork: **[kubinka0505/matchering-cli]**.
+3. Open your browser and navigate to `http://localhost:8360`
 
-## 💓 WhatBPM
+## Usage
 
-Looking for the perfect BPM or key for a new EDM track?
+1. **Upload Tracks**: Drag and drop your target track and up to 10 reference tracks
+2. **Processing**: Wait while the system generates masterings for each reference
+3. **Compare**: Hover over mastering areas to preview, click to choose your favorite
+4. **Rank**: View the ranking chart that updates in real-time below the comparison
+5. **Download**: Download your favorite masterings with automatically generated filenames
 
-**[Check out WhatBPM!](https://sergree.github.io/whatbpm)**
+## Docker
 
-A completely free open-source web service from the author of Matchering.
+Build and run with Docker:
 
-## A Coffee
+```bash
+docker-start.bat
+```
 
-If our package saved your time or money, you may:
+Or manually:
+```bash
+docker build -t matchering-2025:latest .
+docker run -dp 8360:8360 \
+  -v matchering-uploads:/app/uploads \
+  -v matchering-results:/app/results \
+  -v matchering-previews:/app/previews \
+  --name matchering-2025 \
+  --restart always \
+  matchering-2025:latest
+```
 
-[![Buy Me A Coffee](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://t.me/tribute/app?startapp=de85)
+## License
 
-**Thank you!**
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-## Links
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-- [Press About Us](https://github.com/sergree/matchering/blob/master/PRESS.md)
-- [Supporters](https://github.com/sergree/matchering/blob/master/SUPPORTERS.md)
-- [Our Limiter Quality Test](https://github.com/sergree/matchering/blob/master/LIMITER_TEST.md)
-- [Matchering Hyrax Limiter JSFX clone by Tokyo Dawn Labs](https://github.com/JClones/JSFXClones/blob/master/JClones_Hyrax.md)
-- [Log Codes Overview](https://github.com/sergree/matchering/blob/master/LOG_CODES.md)
-- [Our Thoughts](https://github.com/sergree/matchering/blob/master/THOUGHTS.md)
+You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>.
 
-[Matchering]: https://github.com/sergree/matchering
-[Matchering 2.0]: https://github.com/sergree/matchering
-[Hyrax]: https://github.com/sergree/matchering/tree/master/matchering/limiter
-[mastering]: https://en.wikipedia.org/wiki/Audio_mastering
-[RMS]: https://en.wikipedia.org/wiki/Root_mean_square
-[FR]: https://en.wikipedia.org/wiki/Frequency_response
-[peak amplitude]: https://en.wikipedia.org/wiki/Amplitude
-[stereo width]: https://en.wikipedia.org/wiki/Stereo_imaging
-[MATLAB]: https://www.mathworks.com/products/matlab.html
-[Python 3]: https://www.python.org/
-[brickwall limiter]: https://en.wikipedia.org/wiki/Dynamic_range_compression#Limiting
-[PyPI]: https://pypi.org/project/matchering
-[SoundFile]: https://github.com/bastibe/SoundFile#installation
-[libsndfile]: http://www.mega-nerd.com/libsndfile/
-[FFmpeg]: https://www.ffmpeg.org/download.html
-[FFmpeg-win]: https://video.stackexchange.com/questions/20495/how-do-i-set-up-and-use-ffmpeg-in-windows
-[FFmpeg-mac]: https://superuser.com/questions/624561/install-ffmpeg-on-os-x
-[matchering-cli]: https://github.com/sergree/matchering-cli
-[kubinka0505/matchering-cli]: https://github.com/kubinka0505/matchering-cli
-[examples directory]: https://github.com/sergree/matchering/tree/master/examples
-[Video]: http://www.youtube.com/watch?v=8Su5STDYfcA "Matchering 2.0 - Open Source Audio Matching and Mastering"
-[BennVideo]: https://www.youtube.com/watch?v=wZRV2H4PK0Q "Benn Jordan Matchering 2.0 Review"
+## Credits
+
+Based on [Matchering](https://github.com/sergree/matchering) by Sergree.
+
+### Modifications (2025)
+
+This version includes significant modifications:
+- Multi-reference support (up to 10 references)
+- Hot or Not comparison system with hover previews
+- Real-time ranking charts
+- WAV 16-bit and 24-bit export formats
+- Python 3.14+ compatibility
+- Enhanced user interface
+
+See [MODIFICATIONS.md](MODIFICATIONS.md) for detailed change log.
+
+## Technical Details
+
+- Built on the Matchering audio processing library
+- Flask backend with RESTful API
+- Real-time processing with progress tracking
+- Intelligent comparison algorithm for optimal mastering selection

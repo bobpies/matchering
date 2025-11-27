@@ -19,7 +19,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 """
 
 import numpy as np
-from resampy import resample
+try:
+    from resampy import resample
+    RESAMPY_AVAILABLE = True
+except ImportError:
+    # Fallback to scipy for Python 3.14+ compatibility
+    from scipy.signal import resample as scipy_resample
+    RESAMPY_AVAILABLE = False
 
 from .log import Code, warning, info, debug, ModuleError
 from . import Config
@@ -39,7 +45,17 @@ def __check_sample_rate(
         debug(
             f"Resampling {name} audio from {sample_rate} Hz to {required_sample_rate} Hz..."
         )
-        array = resample(array, sample_rate, required_sample_rate, axis=0)
+        if RESAMPY_AVAILABLE:
+            array = resample(array, sample_rate, required_sample_rate, axis=0)
+        else:
+            # Use scipy resample as fallback for Python 3.14+
+            num_samples = int(array.shape[0] * required_sample_rate / sample_rate)
+            if array.ndim == 1:
+                array = scipy_resample(array, num_samples)
+            else:
+                # scipy resample works on first axis by default
+                resampled = scipy_resample(array, num_samples, axis=0)
+                array = resampled
         log_handler(log_code)
     return array, required_sample_rate
 

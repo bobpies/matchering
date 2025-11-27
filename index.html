@@ -1,65 +1,151 @@
 <!doctype html>
 <html lang="en">
 <head>
-
     <meta charset="utf-8">
-    <title>Matchering 2.0</title>
-    <meta name="description" content="Open Source Audio Matching and Mastering">
-    <meta name="author" content="Sergree">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
-    <meta name="email" content="sergree@vk.com">
-    <link rel="image_src" href="https://sergree.github.io/matchering/page/images/share.png">
-    <meta name="keywords" content="matchering, sergree">
-
+    <title>Matchering 2025 - Multi-Reference Mastering</title>
+    <meta name="description" content="Professional Audio Matching and Mastering with Multiple References - 2025 Edition">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
     <link rel="apple-touch-icon" sizes="180x180" href="page/images/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="page/images/favicon-32x32.png" sizes="32x32">
     <link rel="icon" type="image/png" href="page/images/favicon-16x16.png" sizes="16x16">
     <link rel="manifest" href="page/manifest.json">
-    <link rel="mask-icon" href="page/images/safari-pinned-tab.svg">
-    <link rel="shortcut icon" href="page/favicon.ico">
-    <meta name="msapplication-config" content="page/browserconfig.xml">
-    <meta name="theme-color" content="#fed535">
-
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="Matchering 2.0" />
-    <meta property="og:image" content="https://sergree.github.io/matchering/page/images/share.png" />
-    <meta property="og:url" content= "https://sergree.github.io/matchering/" />
-    <meta property="og:description" content="Open Source Audio Matching and Mastering" />
-
     <link rel="stylesheet" href="page/css/reset.css">
-    <link rel="stylesheet" href="page/css/fork.css">
     <link rel="stylesheet" href="page/css/style.css">
+    <link rel="stylesheet" href="page/css/app.css">
 </head>
 <body>
     <header>
-        <div id="forkongithub">
-            <a href="https://github.com/sergree/matchering" target="_blank">Fork me on GitHub</a>
-        </div>
         <div class="header-row">
             <nav class="header-cell">
-                <ul>
-                    <li><a href="https://sergree.github.io/whatbpm/" target="_blank" class="whatbpm">💓 What<span>BPM</span></a></li>
-                    <li><a href="https://github.com/sergree/matchering/blob/master/README.md" target="_blank">About</a></li>
-                    <li><a href="https://github.com/sergree/matchering/wiki/FAQ" target="_blank">FAQ</a></li>
-                    <li><a href="https://t.me/tribute/app?startapp=de85" target="_blank">Donate</a></li>
-                </ul>
+                <h1><span class="accent">Match</span>ering <span class="accent">2025</span></h1>
             </nav>
         </div>
     </header>
 
-    <main class="flex">
-        <section id="stage-upload">
-            <div class="flex">
-                <header>
-                    <h1><span class="accent">Match</span>ering <span class="accent">2.0</span></h1>
-                    <h2 id="upload-tip">Open Source Audio Matching and Mastering</h2>
-                </header>
-                <div class="upload-box">
-                    <iframe width="580" height="325" src="https://www.youtube.com/embed/8Su5STDYfcA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    <main>
+        <!-- Upload Stage -->
+        <section id="stage-upload" class="stage active">
+            <div class="container">
+                <h2>Upload Your Tracks</h2>
+                <p class="subtitle">Upload your target track and up to 10 reference tracks for mastering</p>
+                
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="upload-section">
+                        <label for="target-file" class="upload-label">
+                            <span class="upload-icon">🎵</span>
+                            <span>Target Track (Your Song)</span>
+                            <input type="file" id="target-file" name="target" accept="audio/*" required>
+                        </label>
+                        <div id="target-preview" class="file-preview"></div>
+                    </div>
+
+                    <div class="upload-section">
+                        <label class="section-label">Reference Tracks (Up to 10)</label>
+                        <div id="reference-drop-zone" class="reference-drop-zone">
+                            <p>📁 Drag and drop up to 10 audio files here, or click to browse</p>
+                            <input type="file" id="reference-files-input" multiple accept="audio/*" style="display: none;">
+                        </div>
+                        <div id="reference-container" class="reference-container">
+                            <!-- References will be added here -->
+                        </div>
+                        <button type="button" id="add-reference" class="btn-secondary" style="display: none;">+ Add Another Reference</button>
+                    </div>
+
+                    <button type="submit" id="upload-btn" class="btn-primary">Start Processing</button>
+                </form>
+            </div>
+        </section>
+
+        <!-- Processing Stage -->
+        <section id="stage-processing" class="stage">
+            <div class="container">
+                <h2>Processing Your Masterings</h2>
+                <div id="processing-status" class="processing-status">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill"></div>
+                    </div>
+                    <p id="processing-text">Initializing...</p>
                 </div>
-                <div class='bottom-tip'>
-                    <p><a href="https://github.com/sergree/matchering/blob/master/DOCKER.md" target="_blank">Get it NOW!</a></p>
+            </div>
+        </section>
+
+        <!-- Hot or Not Stage -->
+        <section id="stage-comparison" class="stage">
+            <div class="container">
+                <h2>Choose Your Favorite Mastering</h2>
+                <p class="subtitle">Listen to the original and two masterings, then choose the best one</p>
+                
+                <div class="comparison-container">
+                    <div class="audio-player original">
+                        <h3>Original</h3>
+                        <div class="preview-area">
+                            <audio id="original-audio" preload="auto"></audio>
+                            <div class="preview-overlay">
+                                <span class="preview-hint">Hover to preview • Click to compare</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="audio-player mastering hover-preview" data-mastering="a" data-mastering-id="">
+                        <h3>Mastering A</h3>
+                        <div class="preview-area">
+                            <audio id="mastering-a-audio" preload="auto"></audio>
+                            <div class="preview-overlay">
+                                <span class="preview-hint">Hover to preview • Click to choose</span>
+                            </div>
+                        </div>
+                        <button class="vote-btn" data-mastering="a">🔥 Choose This</button>
+                    </div>
+                    
+                    <div class="audio-player mastering hover-preview" data-mastering="b" data-mastering-id="">
+                        <h3>Mastering B</h3>
+                        <div class="preview-area">
+                            <audio id="mastering-b-audio" preload="auto"></audio>
+                            <div class="preview-overlay">
+                                <span class="preview-hint">Hover to preview • Click to choose</span>
+                            </div>
+                        </div>
+                        <button class="vote-btn" data-mastering="b">🔥 Choose This</button>
+                    </div>
                 </div>
+
+                <div class="comparison-controls">
+                    <button id="skip-comparison" class="btn-secondary">Skip This Comparison</button>
+                    <button id="stop-comparing" class="btn-secondary">Stop Comparing</button>
+                </div>
+                
+                <!-- Rankings Chart (shown below comparison) -->
+                <div id="comparison-rankings" class="comparison-rankings" style="display: none;">
+                    <h3>Current Rankings</h3>
+                    <div id="comparison-rankings-chart" class="rankings-chart"></div>
+                    <div id="comparison-rankings-list" class="rankings-list"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Rankings Stage -->
+        <section id="stage-rankings" class="stage">
+            <div class="container">
+                <h2>Mastering Rankings</h2>
+                <p class="subtitle">Based on your preferences</p>
+                
+                <div id="rankings-chart" class="rankings-chart"></div>
+                
+                <div id="rankings-list" class="rankings-list"></div>
+                
+                <div class="actions">
+                    <button id="continue-comparing" class="btn-primary">Continue Comparing</button>
+                    <button id="view-all" class="btn-secondary">View All Masterings</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Results Stage -->
+        <section id="stage-results" class="stage">
+            <div class="container">
+                <h2>All Masterings</h2>
+                <div id="results-grid" class="results-grid"></div>
             </div>
         </section>
     </main>
@@ -67,10 +153,11 @@
     <footer>
         <div class="footer-row">
             <div class="footer-cell">
-                <p>Maintained by <a href="https://github.com/sergree" title="Sergree" target="_blank">Sergree</a></p>
+                <p>Powered by <a href="https://github.com/sergree/matchering" target="_blank">Matchering</a> | Modified 2025 | GPLv3</p>
             </div>
         </div>
     </footer>
-    <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "40aee160c31f4ae18e61f1103ef5b861"}'></script><!-- End Cloudflare Web Analytics -->
+
+    <script src="app.js"></script>
 </body>
 </html>

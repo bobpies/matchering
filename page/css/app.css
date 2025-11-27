@@ -1,0 +1,439 @@
+/* Additional styles for the new application */
+
+.stage {
+    display: none;
+    padding: 100px 20px 20px;
+    min-height: calc(100vh - 152px);
+}
+
+.stage.active {
+    display: block;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.subtitle {
+    color: #e4e3df;
+    font-size: 1.2em;
+    margin-bottom: 30px;
+    opacity: 0.8;
+}
+
+/* Upload Styles */
+.upload-section {
+    margin-bottom: 30px;
+}
+
+.upload-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 20px;
+    border: 2px dashed #fed535;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(254, 213, 53, 0.1);
+    position: relative;
+}
+
+.upload-label:hover {
+    background: rgba(254, 213, 53, 0.2);
+    border-color: #e4e3df;
+}
+
+.upload-label.drag-over {
+    background: rgba(254, 213, 53, 0.3);
+    border-color: #e4e3df;
+    border-style: solid;
+    transform: scale(1.02);
+}
+
+.upload-label.file-selected {
+    border-color: #02fe94;
+    background: rgba(2, 254, 148, 0.1);
+}
+
+.upload-label::before {
+    content: '📁 Drop audio file here or click to browse';
+    position: absolute;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.8em;
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.upload-label.file-selected::before {
+    content: '';
+}
+
+.upload-label input[type="file"] {
+    display: none;
+}
+
+.upload-icon {
+    font-size: 1.5em;
+}
+
+.section-label {
+    display: block;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    color: #fed535;
+    font-weight: 700;
+}
+
+.reference-drop-zone {
+    border: 2px dashed #fed535;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: rgba(254, 213, 53, 0.1);
+    margin-bottom: 20px;
+}
+
+.reference-drop-zone:hover {
+    background: rgba(254, 213, 53, 0.2);
+    border-color: #e4e3df;
+}
+
+.reference-drop-zone.drag-over {
+    background: rgba(254, 213, 53, 0.3);
+    border-color: #e4e3df;
+    border-style: solid;
+    transform: scale(1.02);
+}
+
+.reference-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.remove-ref-btn {
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 14px;
+    margin-left: auto;
+    transition: all 0.3s;
+}
+
+.remove-ref-btn:hover {
+    background: #cc0000;
+    transform: scale(1.1);
+}
+
+.reference-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.file-preview {
+    margin-top: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    font-size: 0.9em;
+    display: none;
+}
+
+.file-preview.active {
+    display: block;
+}
+
+.btn-primary, .btn-secondary {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-weight: 700;
+    margin: 10px;
+}
+
+.btn-primary {
+    background: #fed535;
+    color: #1c1d1f;
+}
+
+.btn-primary:hover {
+    background: #e4e3df;
+    transform: scale(1.05);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: #fed535;
+    border: 2px solid #fed535;
+}
+
+.btn-secondary:hover {
+    background: rgba(254, 213, 53, 0.1);
+}
+
+/* Processing Styles */
+.processing-status {
+    text-align: center;
+    padding: 40px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 30px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #fed535, #e4e3df);
+    width: 0%;
+    transition: width 0.3s;
+    border-radius: 15px;
+}
+
+/* Comparison Styles */
+.comparison-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.audio-player {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    transition: all 0.3s;
+}
+
+.audio-player:hover {
+    background: rgba(0, 0, 0, 0.5);
+    transform: translateY(-5px);
+}
+
+.audio-player h3 {
+    margin-bottom: 15px;
+    color: #fed535;
+}
+
+.preview-area {
+    position: relative;
+    width: 100%;
+    min-height: 150px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    margin-bottom: 15px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+
+.preview-area:hover {
+    background: rgba(254, 213, 53, 0.2);
+    border: 2px solid #fed535;
+}
+
+.preview-area audio {
+    display: none;
+}
+
+.preview-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.preview-hint {
+    color: #e4e3df;
+    font-size: 0.9em;
+    opacity: 0.7;
+    text-align: center;
+    padding: 20px;
+}
+
+.preview-area:hover .preview-hint {
+    opacity: 1;
+    color: #fed535;
+}
+
+.mastering.hover-preview .preview-area {
+    cursor: pointer;
+}
+
+.mastering.hover-preview .preview-area:hover {
+    transform: scale(1.05);
+}
+
+.vote-btn {
+    background: #fed535;
+    color: #1c1d1f;
+    font-size: 1.1em;
+    padding: 10px 20px;
+    margin: 5px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s;
+    width: 100%;
+}
+
+.vote-btn:hover {
+    background: #e4e3df;
+    transform: scale(1.05);
+}
+
+.comparison-controls {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.comparison-rankings {
+    margin-top: 40px;
+    padding-top: 40px;
+    border-top: 2px solid #fed535;
+}
+
+.comparison-rankings h3 {
+    color: #fed535;
+    margin-bottom: 20px;
+}
+
+/* Rankings Styles */
+.rankings-chart {
+    margin: 30px 0;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    min-height: 300px;
+}
+
+.rankings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin: 30px 0;
+}
+
+.ranking-item {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    border-left: 4px solid #fed535;
+}
+
+.ranking-number {
+    font-size: 2em;
+    font-weight: 700;
+    color: #fed535;
+    margin-right: 20px;
+    min-width: 50px;
+}
+
+.ranking-info {
+    flex: 1;
+    text-align: left;
+}
+
+.ranking-stats {
+    display: flex;
+    gap: 20px;
+    margin-top: 5px;
+    font-size: 0.9em;
+    opacity: 0.8;
+}
+
+.ranking-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.download-btn {
+    padding: 8px 15px;
+    background: #fed535;
+    color: #1c1d1f;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.download-btn:hover {
+    background: #e4e3df;
+}
+
+/* Results Grid */
+.results-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+}
+
+.result-card {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.result-card h3 {
+    color: #fed535;
+    margin-bottom: 15px;
+}
+
+.result-card audio {
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+.result-card .download-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.actions {
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .comparison-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .results-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
