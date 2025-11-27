@@ -596,12 +596,35 @@ document.getElementById('view-all').addEventListener('click', () => {
 // Show all results
 function showAllResults() {
     const grid = document.getElementById('results-grid');
-    grid.innerHTML = allMasterings.map((mastering, index) => `
+    grid.innerHTML = allMasterings.map((mastering) => `
         <div class="result-card">
             <h3>Reference ${mastering.reference_index}</h3>
-            <audio controls>
-                <source src="/api/preview/${currentJobId}/${mastering.reference_index}" type="audio/wav">
-            </audio>
+            <div class="preview-group">
+                <div class="preview-row">
+                    <span>Limited</span>
+                    <audio controls>
+                        <source src="/api/preview/${currentJobId}/${mastering.reference_index}" type="audio/wav">
+                    </audio>
+                </div>
+                <div class="preview-row">
+                    <span>No Limiter</span>
+                    <audio controls>
+                        <source src="/api/preview-nolimiter/${currentJobId}/${mastering.reference_index}" type="audio/wav">
+                    </audio>
+                </div>
+                <div class="preview-row">
+                    <span>No Limiter + Normalize</span>
+                    <audio controls>
+                        <source src="/api/preview-nolimiter-normalized/${currentJobId}/${mastering.reference_index}" type="audio/wav">
+                    </audio>
+                </div>
+                <div class="preview-row">
+                    <span>Original Slice</span>
+                    <audio controls>
+                        <source src="/api/preview-original/${currentJobId}/${mastering.reference_index}" type="audio/wav">
+                    </audio>
+                </div>
+            </div>
             <div class="download-options">
                 <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav16" 
                    class="download-btn">Download WAV 16-bit</a>

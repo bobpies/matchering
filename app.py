@@ -34,6 +34,10 @@ from werkzeug.utils import secure_filename
 import matchering as mg
 from matchering import Config, Result, pcm16, pcm24
 from matchering.defaults import LimiterConfig
+from matchering.loader import load as mg_load
+from matchering.checker import check as mg_check
+from matchering.saver import save as mg_save
+from matchering.dsp import size as dsp_size, strided_app_2d, batch_rms_2d, fade
 import soundfile as sf
 import numpy as np
 # MP3 conversion removed - using WAV only
@@ -56,6 +60,66 @@ PREVIEWS_FOLDER.mkdir(exist_ok=True)
 # In-memory storage for voting data
 voting_data = {}
 processing_jobs = {}
+
+def generate_variant_previews(target_path, variant_audio_paths, preview_output_paths, config, temp_folder):
+    """Generate aligned previews for each mastering variant."""
+    try:
+        target_array, target_sr = mg_load(str(target_path), "target", temp_folder)
+        target_array, _ = mg_check(target_array, target_sr, config, "target")
+    except Exception as exc:
+        print(f"Failed to load target for previews: {exc}")
+        return {}
+    
+    variant_arrays = {}
+    for key, audio_path in variant_audio_paths.items():
+        if not audio_path:
+            continue
+        try:
+            audio_array, audio_sr = mg_load(str(audio_path), "reference", temp_folder)
+            audio_array, _ = mg_check(audio_array, audio_sr, config, "reference")
+            variant_arrays[key] = audio_array
+        except Exception as exc:
+            print(f"Failed to load {key} result for previews: {exc}")
+    
+    if not variant_arrays:
+        return {}
+    
+    base_key = 'limited' if 'limited' in variant_arrays else next(iter(variant_arrays))
+    preview_size = int(config.preview_size)
+    analysis_step = int(config.preview_analysis_step)
+    
+    target_pieces = strided_app_2d(target_array, preview_size, analysis_step)
+    variant_pieces = {key: strided_app_2d(arr, preview_size, analysis_step) for key, arr in variant_arrays.items()}
+    base_pieces = variant_pieces[base_key]
+    
+    loudest_idx = int(np.argmax(batch_rms_2d(base_pieces)))
+    loudest_idx = min(loudest_idx, base_pieces.shape[0] - 1)
+    
+    def extract_piece(pieces):
+        idx = min(loudest_idx, pieces.shape[0] - 1)
+        piece = pieces[idx].copy()
+        fade_base = dsp_size(piece) // max(1, config.preview_fade_coefficient)
+        fade_len = min(int(config.preview_fade_size), int(fade_base))
+        if fade_len > 0:
+            piece = fade(piece, fade_len)
+        return piece
+    
+    preview_map = {}
+    
+    if 'original' in preview_output_paths:
+        target_piece = extract_piece(target_pieces)
+        mg_save(str(preview_output_paths['original']), target_piece, config.internal_sample_rate, "PCM_16", "target preview")
+        preview_map['original'] = str(preview_output_paths['original'])
+    
+    for key, pieces in variant_pieces.items():
+        preview_path = preview_output_paths.get(key)
+        if not preview_path:
+            continue
+        variant_piece = extract_piece(pieces)
+        mg_save(str(preview_path), variant_piece, config.internal_sample_rate, "PCM_16", f"{key} preview")
+        preview_map[key] = str(preview_path)
+    
+    return preview_map
 
 def parse_limiter_settings(form_data):
     """Extract optional limiter attack/hold/release overrides from the request."""
@@ -104,6 +168,8 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
         wav_24bit = session_folder / f"mastered_{reference_index}_24bit.wav"
         preview_wav = preview_folder / f"preview_{reference_index}.wav"
         preview_original_wav = preview_folder / f"preview_{reference_index}_original.wav"
+        preview_wav_no_limiter = preview_folder / f"preview_{reference_index}_nolimiter.wav"
+        preview_wav_no_limiter_normalized = preview_folder / f"preview_{reference_index}_nolimiter_normalized.wav"
         wav_24bit_no_limiter = session_folder / f"mastered_{reference_index}_24bit_nolimiter.wav"
         wav_24bit_no_limiter_normalized = session_folder / f"mastered_{reference_index}_24bit_nolimiter_normalized.wav"
         
@@ -118,9 +184,26 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
                 Result(str(wav_24bit_no_limiter), subtype="PCM_24", use_limiter=False, normalize=False),
                 Result(str(wav_24bit_no_limiter_normalized), subtype="PCM_24", use_limiter=False, normalize=True),
             ],
-            preview_target=Result(str(preview_original_wav), subtype="PCM_16"),
-            preview_result=Result(str(preview_wav), subtype="PCM_16"),
             config=config,
+        )
+        
+        preview_paths = {
+            'original': preview_original_wav,
+            'limited': preview_wav,
+            'nolimiter': preview_wav_no_limiter,
+            'nolimiter_normalized': preview_wav_no_limiter_normalized,
+        }
+        variant_audio_paths = {
+            'limited': wav_24bit,
+            'nolimiter': wav_24bit_no_limiter,
+            'nolimiter_normalized': wav_24bit_no_limiter_normalized,
+        }
+        generate_variant_previews(
+            target_path=str(target_path),
+            variant_audio_paths=variant_audio_paths,
+            preview_output_paths=preview_paths,
+            config=config,
+            temp_folder=str(session_folder),
         )
         
         return {
@@ -132,6 +215,8 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
             'preview_original_wav': str(preview_original_wav),
             'wav_24bit_no_limiter': str(wav_24bit_no_limiter),
             'wav_24bit_no_limiter_normalized': str(wav_24bit_no_limiter_normalized),
+            'preview_wav_nolimiter': str(preview_wav_no_limiter),
+            'preview_wav_nolimiter_normalized': str(preview_wav_no_limiter_normalized),
         }
     except Exception as e:
         print(f"Error processing mastering {reference_index}: {e}")
@@ -283,6 +368,26 @@ def get_preview_original(job_id, reference_index):
         return send_file(str(preview_original_wav), mimetype='audio/wav')
     else:
         return jsonify({'error': 'Original preview not found'}), 404
+
+@app.route('/api/preview-nolimiter/<job_id>/<int:reference_index>')
+def get_preview_no_limiter(job_id, reference_index):
+    """Get no-limiter preview snippet"""
+    preview_wav = PREVIEWS_FOLDER / job_id / f"preview_{reference_index}_nolimiter.wav"
+    
+    if preview_wav.exists():
+        return send_file(str(preview_wav), mimetype='audio/wav')
+    else:
+        return jsonify({'error': 'No-limiter preview not found'}), 404
+
+@app.route('/api/preview-nolimiter-normalized/<job_id>/<int:reference_index>')
+def get_preview_no_limiter_normalized(job_id, reference_index):
+    """Get no-limiter normalized preview snippet"""
+    preview_wav = PREVIEWS_FOLDER / job_id / f"preview_{reference_index}_nolimiter_normalized.wav"
+    
+    if preview_wav.exists():
+        return send_file(str(preview_wav), mimetype='audio/wav')
+    else:
+        return jsonify({'error': 'No-limiter normalized preview not found'}), 404
 
 @app.route('/api/original/<job_id>')
 def get_original(job_id):

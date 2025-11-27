@@ -9,7 +9,7 @@ Professional audio matching and mastering tool with multi-reference support and 
 - **Real-time Rankings**: Visual chart showing the most popular mastering based on your preferences
 - **Multiple Export Formats**: Download your masterings in WAV 16-bit, WAV 24-bit, or WAV 24-bit variants without the limiter
 - **Limiter Expert Controls**: Override limiter attack/hold/release per mastering session
-- **Synchronized Previews**: All previews use the same audio segment for fair comparison
+- **Aligned Previews Per Variant**: Limited, no-limiter, no-limiter (normalized), and original snippets share the identical slice for A/B tests
 
 ## Installation
 
@@ -50,6 +50,13 @@ python app.py
 - In the upload form, expand the expert area to set custom **attack**, **hold**, and **release** (milliseconds).
 - Leave any field blank to fall back to the Matchering defaults (Attack 1 ms / Hold 1 ms / Release 3000 ms).
 - The API exposes the values via `/api/status/<job_id>` and the downloads include both the standard and no-limiter renders.
+
+### Preview API
+
+- `/api/preview/<job_id>/<reference_index>` – limiter-on preview (default)
+- `/api/preview-nolimiter/<job_id>/<reference_index>` – limiter bypassed preview
+- `/api/preview-nolimiter-normalized/<job_id>/<reference_index>` – limiter bypassed + normalized preview
+- `/api/preview-original/<job_id>/<reference_index>` – matching original slice for direct A/B comparison
 
 ## Docker
 

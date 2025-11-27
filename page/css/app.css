@@ -200,6 +200,28 @@
     display: block;
 }
 
+.preview-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.preview-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.preview-row span {
+    font-size: 0.9em;
+    color: #fed535;
+}
+
+.preview-row audio {
+    width: 100%;
+}
+
 .btn-primary, .btn-secondary {
     padding: 15px 30px;
     border: none;
