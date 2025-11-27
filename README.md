@@ -7,7 +7,8 @@ Professional audio matching and mastering tool with multi-reference support and 
 - **Multi-Reference Mastering**: Upload up to 10 reference tracks and generate multiple mastering variations
 - **Hot or Not Comparison**: Interactive hover-to-preview system to compare masterings side-by-side
 - **Real-time Rankings**: Visual chart showing the most popular mastering based on your preferences
-- **Multiple Export Formats**: Download your masterings in WAV 16-bit, WAV 24-bit, or WAV 24-bit variants without the limiter
+- **Multiple Loudness Profiles**: Automatically render Low, Medium, and High limiter settings for every reference
+- **Multiple Export Formats**: Download WAV 16-bit, WAV 24-bit, Low/Medium/High loudness 24-bit, or WAV 24-bit variants without the limiter
 - **Limiter Expert Controls**: Override limiter attack/hold/release per mastering session
 - **Aligned Previews Per Variant**: Limited, no-limiter, no-limiter (normalized), and original snippets share the identical slice for A/B tests
 
@@ -43,7 +44,7 @@ python app.py
 2. **Processing**: Wait while the system generates masterings for each reference
 3. **Compare**: Hover over mastering areas to preview, click to choose your favorite
 4. **Rank**: View the ranking chart that updates in real-time below the comparison
-5. **Download**: Download your favorite masterings as WAV 16-bit, WAV 24-bit, 24-bit without the limiter, or 24-bit without the limiter but normalized
+5. **Download**: Grab WAV 16-bit, WAV 24-bit (medium), 24-bit Low/High loudness, 24-bit without the limiter, or 24-bit without the limiter but normalized
 
 ### Expert Limiter Controls
 
@@ -51,9 +52,23 @@ python app.py
 - Leave any field blank to fall back to the Matchering defaults (Attack 1 ms / Hold 1 ms / Release 3000 ms).
 - The API exposes the values via `/api/status/<job_id>` and the downloads include both the standard and no-limiter renders.
 
+### Loudness Presets
+
+- Every mastering now includes **Low** (5/5/2000 ms), **Medium** (defaults or your custom values), and **High** (0.3/40/800 ms) limiter profiles.
+- Downloads:
+  - `/api/download/<job>/<ref>/wav24_low`
+  - `/api/download/<job>/<ref>/wav24` (medium – respects expert override)
+  - `/api/download/<job>/<ref>/wav24_high`
+- Previews:
+  - `/api/preview-low/<job>/<ref>`
+  - `/api/preview/<job>/<ref>` (medium)
+  - `/api/preview-high/<job>/<ref>`
+
 ### Preview API
 
 - `/api/preview/<job_id>/<reference_index>` – limiter-on preview (default)
+- `/api/preview-low/<job_id>/<reference_index>` – low loudness preview
+- `/api/preview-high/<job_id>/<reference_index>` – high loudness preview
 - `/api/preview-nolimiter/<job_id>/<reference_index>` – limiter bypassed preview
 - `/api/preview-nolimiter-normalized/<job_id>/<reference_index>` – limiter bypassed + normalized preview
 - `/api/preview-original/<job_id>/<reference_index>` – matching original slice for direct A/B comparison

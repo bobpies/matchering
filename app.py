@@ -51,6 +51,24 @@ RESULTS_FOLDER = Path('results')
 PREVIEWS_FOLDER = Path('previews')
 MAX_REFERENCES = 10
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac', 'aiff', 'm4a', 'ogg'}
+LOUDNESS_PRESETS = {
+    'low': {
+        'attack': 5.0,
+        'hold': 5.0,
+        'release': 2000.0,
+    },
+    'medium': {
+        'attack': 1.0,
+        'hold': 1.0,
+        'release': 3000.0,
+    },
+    'high': {
+        'attack': 0.3,
+        'hold': 40.0,
+        'release': 800.0,
+    }
+}
+LOUDNESS_VARIANTS = ['low', 'medium', 'high']
 
 # Ensure directories exist
 UPLOAD_FOLDER.mkdir(exist_ok=True)
@@ -149,13 +167,19 @@ def build_config(limiter_settings=None):
         return Config(limiter=limiter)
     return Config()
 
+def resolve_limiter_settings(variant, user_settings=None):
+    base = dict(LOUDNESS_PRESETS.get(variant, {}))
+    if variant == 'medium' and user_settings:
+        base.update(user_settings)
+    return base or user_settings or LOUDNESS_PRESETS['medium']
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # MP3 conversion function removed - using WAV only
 
 def process_mastering(target_path, reference_path, job_id, reference_index, limiter_settings=None):
-    """Process a single mastering job"""
+    """Process a single mastering job with multiple loudness variants"""
     try:
         session_folder = RESULTS_FOLDER / job_id
         session_folder.mkdir(exist_ok=True)
@@ -163,56 +187,89 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
         preview_folder = PREVIEWS_FOLDER / job_id
         preview_folder.mkdir(exist_ok=True)
         
-        # Generate output filenames (WAV only)
-        wav_16bit = session_folder / f"mastered_{reference_index}_16bit.wav"
-        wav_24bit = session_folder / f"mastered_{reference_index}_24bit.wav"
-        preview_wav = preview_folder / f"preview_{reference_index}.wav"
-        preview_original_wav = preview_folder / f"preview_{reference_index}_original.wav"
-        preview_wav_no_limiter = preview_folder / f"preview_{reference_index}_nolimiter.wav"
-        preview_wav_no_limiter_normalized = preview_folder / f"preview_{reference_index}_nolimiter_normalized.wav"
+        # Common file paths
+        wav_16bit_medium = session_folder / f"mastered_{reference_index}_16bit.wav"
+        wav_24bit_medium = session_folder / f"mastered_{reference_index}_24bit.wav"
+        wav_24bit_low = session_folder / f"mastered_{reference_index}_low_24bit.wav"
+        wav_24bit_high = session_folder / f"mastered_{reference_index}_high_24bit.wav"
         wav_24bit_no_limiter = session_folder / f"mastered_{reference_index}_24bit_nolimiter.wav"
         wav_24bit_no_limiter_normalized = session_folder / f"mastered_{reference_index}_24bit_nolimiter_normalized.wav"
         
-        # Process with matchering
-        config = build_config(limiter_settings)
-        mg.process(
-            target=str(target_path),
-            reference=str(reference_path),
-            results=[
-                pcm16(str(wav_16bit)),
-                pcm24(str(wav_24bit)),
-                Result(str(wav_24bit_no_limiter), subtype="PCM_24", use_limiter=False, normalize=False),
-                Result(str(wav_24bit_no_limiter_normalized), subtype="PCM_24", use_limiter=False, normalize=True),
-            ],
-            config=config,
-        )
+        preview_original_wav = preview_folder / f"preview_{reference_index}_original.wav"
+        preview_wav_medium = preview_folder / f"preview_{reference_index}.wav"
+        preview_wav_low = preview_folder / f"preview_{reference_index}_low.wav"
+        preview_wav_high = preview_folder / f"preview_{reference_index}_high.wav"
+        preview_wav_no_limiter = preview_folder / f"preview_{reference_index}_nolimiter.wav"
+        preview_wav_no_limiter_normalized = preview_folder / f"preview_{reference_index}_nolimiter_normalized.wav"
+        
+        # Track audio paths for preview generation
+        variant_audio_paths = {
+            'limited': None,
+            'low': None,
+            'high': None,
+            'nolimiter': None,
+            'nolimiter_normalized': None,
+        }
+        
+        for variant in LOUDNESS_VARIANTS:
+            variant_settings = resolve_limiter_settings(variant, limiter_settings)
+            config = build_config(variant_settings)
+            
+            if variant == 'medium':
+                mg.process(
+                    target=str(target_path),
+                    reference=str(reference_path),
+                    results=[
+                        pcm16(str(wav_16bit_medium)),
+                        pcm24(str(wav_24bit_medium)),
+                        Result(str(wav_24bit_no_limiter), subtype="PCM_24", use_limiter=False, normalize=False),
+                        Result(str(wav_24bit_no_limiter_normalized), subtype="PCM_24", use_limiter=False, normalize=True),
+                    ],
+                    config=config,
+                )
+                variant_audio_paths['limited'] = wav_24bit_medium
+                variant_audio_paths['nolimiter'] = wav_24bit_no_limiter
+                variant_audio_paths['nolimiter_normalized'] = wav_24bit_no_limiter_normalized
+            else:
+                variant_path = wav_24bit_low if variant == 'low' else wav_24bit_high
+                mg.process(
+                    target=str(target_path),
+                    reference=str(reference_path),
+                    results=[
+                        pcm24(str(variant_path)),
+                    ],
+                    config=config,
+                )
+                variant_audio_paths[variant] = variant_path
         
         preview_paths = {
             'original': preview_original_wav,
-            'limited': preview_wav,
+            'limited': preview_wav_medium,
+            'low': preview_wav_low,
+            'high': preview_wav_high,
             'nolimiter': preview_wav_no_limiter,
             'nolimiter_normalized': preview_wav_no_limiter_normalized,
         }
-        variant_audio_paths = {
-            'limited': wav_24bit,
-            'nolimiter': wav_24bit_no_limiter,
-            'nolimiter_normalized': wav_24bit_no_limiter_normalized,
-        }
+        
         generate_variant_previews(
             target_path=str(target_path),
             variant_audio_paths=variant_audio_paths,
             preview_output_paths=preview_paths,
-            config=config,
+            config=build_config(resolve_limiter_settings('medium', limiter_settings)),
             temp_folder=str(session_folder),
         )
         
         return {
             'success': True,
             'reference_index': reference_index,
-            'wav_16bit': str(wav_16bit),
-            'wav_24bit': str(wav_24bit),
-            'preview_wav': str(preview_wav),
+            'wav_16bit': str(wav_16bit_medium),
+            'wav_24bit': str(wav_24bit_medium),
+            'wav_24bit_low': str(wav_24bit_low),
+            'wav_24bit_high': str(wav_24bit_high),
+            'preview_wav': str(preview_wav_medium),
             'preview_original_wav': str(preview_original_wav),
+            'preview_wav_low': str(preview_wav_low),
+            'preview_wav_high': str(preview_wav_high),
             'wav_24bit_no_limiter': str(wav_24bit_no_limiter),
             'wav_24bit_no_limiter_normalized': str(wav_24bit_no_limiter_normalized),
             'preview_wav_nolimiter': str(preview_wav_no_limiter),
@@ -389,6 +446,26 @@ def get_preview_no_limiter_normalized(job_id, reference_index):
     else:
         return jsonify({'error': 'No-limiter normalized preview not found'}), 404
 
+@app.route('/api/preview-low/<job_id>/<int:reference_index>')
+def get_preview_low(job_id, reference_index):
+    """Get low loudness preview snippet"""
+    preview_wav = PREVIEWS_FOLDER / job_id / f"preview_{reference_index}_low.wav"
+    
+    if preview_wav.exists():
+        return send_file(str(preview_wav), mimetype='audio/wav')
+    else:
+        return jsonify({'error': 'Low loudness preview not found'}), 404
+
+@app.route('/api/preview-high/<job_id>/<int:reference_index>')
+def get_preview_high(job_id, reference_index):
+    """Get high loudness preview snippet"""
+    preview_wav = PREVIEWS_FOLDER / job_id / f"preview_{reference_index}_high.wav"
+    
+    if preview_wav.exists():
+        return send_file(str(preview_wav), mimetype='audio/wav')
+    else:
+        return jsonify({'error': 'High loudness preview not found'}), 404
+
 @app.route('/api/original/<job_id>')
 def get_original(job_id):
     """Get original target file preview"""
@@ -413,6 +490,14 @@ def download_file(job_id, reference_index, format_type):
         file_path = session_folder / f"mastered_{reference_index}_24bit.wav"
         mimetype = 'audio/wav'
         suffix = ' 24bit.wav'
+    elif format_type == 'wav24_low':
+        file_path = session_folder / f"mastered_{reference_index}_low_24bit.wav"
+        mimetype = 'audio/wav'
+        suffix = ' 24bit Low Loudness.wav'
+    elif format_type == 'wav24_high':
+        file_path = session_folder / f"mastered_{reference_index}_high_24bit.wav"
+        mimetype = 'audio/wav'
+        suffix = ' 24bit High Loudness.wav'
     elif format_type == 'wav24_nolimiter':
         file_path = session_folder / f"mastered_{reference_index}_24bit_nolimiter.wav"
         mimetype = 'audio/wav'
@@ -422,7 +507,7 @@ def download_file(job_id, reference_index, format_type):
         mimetype = 'audio/wav'
         suffix = ' 24bit No Limiter Normalized.wav'
     else:
-        return jsonify({'error': 'Invalid format. Use wav16, wav24, wav24_nolimiter, or wav24_nolimiter_normalized'}), 400
+        return jsonify({'error': 'Invalid format. Use wav16, wav24, wav24_low, wav24_high, wav24_nolimiter, or wav24_nolimiter_normalized'}), 400
     
     if file_path.exists():
         # Generate download filename with random code

@@ -562,6 +562,10 @@ async function updateRankingsChart(chartId = 'rankings-chart', listId = 'ranking
                            class="download-btn">Download WAV 16-bit</a>
                         <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24" 
                            class="download-btn">Download WAV 24-bit</a>
+                        <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24_low" 
+                           class="download-btn">24-bit Low Loudness</a>
+                        <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24_high" 
+                           class="download-btn">24-bit High Loudness</a>
                         <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24_nolimiter" 
                            class="download-btn">24-bit (No Limiter)</a>
                         <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24_nolimiter_normalized" 
@@ -601,9 +605,21 @@ function showAllResults() {
             <h3>Reference ${mastering.reference_index}</h3>
             <div class="preview-group">
                 <div class="preview-row">
+                    <span>Low Loudness</span>
+                    <audio controls>
+                        <source src="/api/preview-low/${currentJobId}/${mastering.reference_index}" type="audio/wav">
+                    </audio>
+                </div>
+                <div class="preview-row">
                     <span>Limited</span>
                     <audio controls>
                         <source src="/api/preview/${currentJobId}/${mastering.reference_index}" type="audio/wav">
+                    </audio>
+                </div>
+                <div class="preview-row">
+                    <span>High Loudness</span>
+                    <audio controls>
+                        <source src="/api/preview-high/${currentJobId}/${mastering.reference_index}" type="audio/wav">
                     </audio>
                 </div>
                 <div class="preview-row">
@@ -630,6 +646,10 @@ function showAllResults() {
                    class="download-btn">Download WAV 16-bit</a>
                 <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24" 
                    class="download-btn">Download WAV 24-bit</a>
+                <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24_low" 
+                   class="download-btn">24-bit Low Loudness</a>
+                <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24_high" 
+                   class="download-btn">24-bit High Loudness</a>
                 <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24_nolimiter" 
                    class="download-btn">24-bit (No Limiter)</a>
                 <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24_nolimiter_normalized" 
