@@ -7,7 +7,7 @@ Professional audio matching and mastering tool with multi-reference support and 
 - **Multi-Reference Mastering**: Upload up to 10 reference tracks and generate multiple mastering variations
 - **Hot or Not Comparison**: Interactive hover-to-preview system to compare masterings side-by-side
 - **Real-time Rankings**: Visual chart showing the most popular mastering based on your preferences
-- **Multiple Loudness Profiles**: Automatically render Low, Medium, and High limiter settings for every reference
+- **Multiple Loudness Profiles**: Automatically render Low (slow attack), Medium (default), and High (fast & aggressive) limiter settings for every reference
 - **Multiple Export Formats**: Download WAV 16-bit, WAV 24-bit, Low/Medium/High loudness 24-bit, or WAV 24-bit variants without the limiter
 - **Limiter Expert Controls**: Override limiter attack/hold/release per mastering session
 - **Aligned Previews Per Variant**: Limited, no-limiter, no-limiter (normalized), and original snippets share the identical slice for A/B tests
@@ -54,7 +54,7 @@ python app.py
 
 ### Loudness Presets
 
-- Every mastering now includes **Low** (5/5/2000 ms), **Medium** (defaults or your custom values), and **High** (0.3/40/800 ms) limiter profiles.
+- Every mastering now includes **Low** (20 ms attack / 2 ms hold / 4000 ms release), **Medium** (defaults or your custom values), and **High** (0.1 ms attack / 120 ms hold / 500 ms release) limiter profiles.
 - Downloads:
   - `/api/download/<job>/<ref>/wav24_low`
   - `/api/download/<job>/<ref>/wav24` (medium – respects expert override)

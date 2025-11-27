@@ -53,9 +53,9 @@ MAX_REFERENCES = 10
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac', 'aiff', 'm4a', 'ogg'}
 LOUDNESS_PRESETS = {
     'low': {
-        'attack': 5.0,
-        'hold': 5.0,
-        'release': 2000.0,
+        'attack': 20.0,
+        'hold': 2.0,
+        'release': 4000.0,
     },
     'medium': {
         'attack': 1.0,
@@ -63,9 +63,9 @@ LOUDNESS_PRESETS = {
         'release': 3000.0,
     },
     'high': {
-        'attack': 0.3,
-        'hold': 40.0,
-        'release': 800.0,
+        'attack': 0.1,
+        'hold': 120.0,
+        'release': 500.0,
     }
 }
 LOUDNESS_VARIANTS = ['low', 'medium', 'high']
