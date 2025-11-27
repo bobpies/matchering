@@ -53,7 +53,7 @@ python app.py
 
 ### Loudness Presets
 
-- Every mastering now includes **Low** (20 ms attack / 2 ms hold / 4000 ms release), **Medium** (defaults or your custom values), and **High** (0.1 ms attack / 120 ms hold / 500 ms release) limiter profiles.
+- Every mastering now includes **Low** (20 ms attack / 2 ms hold / 4000 ms release), **Medium** (defaults or your custom values), and **High** (0.1 ms attack / 60 ms hold / 250 ms release) limiter profiles.
 - Downloads:
   - `/api/download/<job>/<ref>/wav24_low`
   - `/api/download/<job>/<ref>/wav24` (medium – respects expert override)

@@ -74,13 +74,13 @@ LOUDNESS_PRESETS = {
     },
     'high': {
         'attack': 0.1,
-        'hold': 120.0,
-        'release': 500.0,
-        'attack_filter_coefficient': -5.0,
+        'hold': 60.0,
+        'release': 250.0,
+        'attack_filter_coefficient': -6.0,
         'hold_filter_order': 2,
-        'hold_filter_coefficient': 20.0,
+        'hold_filter_coefficient': 15.0,
         'release_filter_order': 1,
-        'release_filter_coefficient': 300.0,
+        'release_filter_coefficient': 200.0,
     }
 }
 LOUDNESS_VARIANTS = ['low', 'medium', 'high']
