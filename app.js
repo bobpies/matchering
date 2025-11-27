@@ -564,6 +564,8 @@ async function updateRankingsChart(chartId = 'rankings-chart', listId = 'ranking
                            class="download-btn">Download WAV 24-bit</a>
                         <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24_nolimiter" 
                            class="download-btn">24-bit (No Limiter)</a>
+                        <a href="/api/download/${currentJobId}/${ranking.reference_index}/wav24_nolimiter_normalized" 
+                           class="download-btn">24-bit (No Limiter + Normalize)</a>
                     </div>
                 </div>
             `).join('');
@@ -607,6 +609,8 @@ function showAllResults() {
                    class="download-btn">Download WAV 24-bit</a>
                 <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24_nolimiter" 
                    class="download-btn">24-bit (No Limiter)</a>
+                <a href="/api/download/${currentJobId}/${mastering.reference_index}/wav24_nolimiter_normalized" 
+                   class="download-btn">24-bit (No Limiter + Normalize)</a>
             </div>
         </div>
     `).join('');

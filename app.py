@@ -105,6 +105,7 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
         preview_wav = preview_folder / f"preview_{reference_index}.wav"
         preview_original_wav = preview_folder / f"preview_{reference_index}_original.wav"
         wav_24bit_no_limiter = session_folder / f"mastered_{reference_index}_24bit_nolimiter.wav"
+        wav_24bit_no_limiter_normalized = session_folder / f"mastered_{reference_index}_24bit_nolimiter_normalized.wav"
         
         # Process with matchering
         config = build_config(limiter_settings)
@@ -114,7 +115,8 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
             results=[
                 pcm16(str(wav_16bit)),
                 pcm24(str(wav_24bit)),
-                Result(str(wav_24bit_no_limiter), subtype="PCM_24", use_limiter=False, normalize=True),
+                Result(str(wav_24bit_no_limiter), subtype="PCM_24", use_limiter=False, normalize=False),
+                Result(str(wav_24bit_no_limiter_normalized), subtype="PCM_24", use_limiter=False, normalize=True),
             ],
             preview_target=Result(str(preview_original_wav), subtype="PCM_16"),
             preview_result=Result(str(preview_wav), subtype="PCM_16"),
@@ -129,6 +131,7 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
             'preview_wav': str(preview_wav),
             'preview_original_wav': str(preview_original_wav),
             'wav_24bit_no_limiter': str(wav_24bit_no_limiter),
+            'wav_24bit_no_limiter_normalized': str(wav_24bit_no_limiter_normalized),
         }
     except Exception as e:
         print(f"Error processing mastering {reference_index}: {e}")
@@ -309,8 +312,12 @@ def download_file(job_id, reference_index, format_type):
         file_path = session_folder / f"mastered_{reference_index}_24bit_nolimiter.wav"
         mimetype = 'audio/wav'
         suffix = ' 24bit No Limiter.wav'
+    elif format_type == 'wav24_nolimiter_normalized':
+        file_path = session_folder / f"mastered_{reference_index}_24bit_nolimiter_normalized.wav"
+        mimetype = 'audio/wav'
+        suffix = ' 24bit No Limiter Normalized.wav'
     else:
-        return jsonify({'error': 'Invalid format. Use wav16, wav24, or wav24_nolimiter'}), 400
+        return jsonify({'error': 'Invalid format. Use wav16, wav24, wav24_nolimiter, or wav24_nolimiter_normalized'}), 400
     
     if file_path.exists():
         # Generate download filename with random code

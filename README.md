@@ -7,7 +7,7 @@ Professional audio matching and mastering tool with multi-reference support and 
 - **Multi-Reference Mastering**: Upload up to 10 reference tracks and generate multiple mastering variations
 - **Hot or Not Comparison**: Interactive hover-to-preview system to compare masterings side-by-side
 - **Real-time Rankings**: Visual chart showing the most popular mastering based on your preferences
-- **Multiple Export Formats**: Download your masterings in WAV 16-bit or WAV 24-bit
+- **Multiple Export Formats**: Download your masterings in WAV 16-bit, WAV 24-bit, or WAV 24-bit variants without the limiter
 - **Limiter Expert Controls**: Override limiter attack/hold/release per mastering session
 - **Synchronized Previews**: All previews use the same audio segment for fair comparison
 
@@ -43,7 +43,7 @@ python app.py
 2. **Processing**: Wait while the system generates masterings for each reference
 3. **Compare**: Hover over mastering areas to preview, click to choose your favorite
 4. **Rank**: View the ranking chart that updates in real-time below the comparison
-5. **Download**: Download your favorite masterings as WAV 16-bit, WAV 24-bit, or 24-bit without the limiter applied
+5. **Download**: Download your favorite masterings as WAV 16-bit, WAV 24-bit, 24-bit without the limiter, or 24-bit without the limiter but normalized
 
 ### Expert Limiter Controls
 
