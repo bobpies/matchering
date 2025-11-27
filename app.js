@@ -23,6 +23,11 @@ function initializeUpload() {
     const limiterAttackInput = document.getElementById('limiter-attack');
     const limiterHoldInput = document.getElementById('limiter-hold');
     const limiterReleaseInput = document.getElementById('limiter-release');
+    const limiterAttackFilterInput = document.getElementById('limiter-attack-filter');
+    const limiterHoldOrderInput = document.getElementById('limiter-hold-order');
+    const limiterHoldFilterInput = document.getElementById('limiter-hold-filter');
+    const limiterReleaseOrderInput = document.getElementById('limiter-release-order');
+    const limiterReleaseFilterInput = document.getElementById('limiter-release-filter');
     
     let referenceCount = 0;
     const referenceFiles = [];
@@ -207,6 +212,11 @@ function initializeUpload() {
             { input: limiterAttackInput, key: 'limiter_attack' },
             { input: limiterHoldInput, key: 'limiter_hold' },
             { input: limiterReleaseInput, key: 'limiter_release' },
+            { input: limiterAttackFilterInput, key: 'limiter_attack_filter' },
+            { input: limiterHoldOrderInput, key: 'limiter_hold_order' },
+            { input: limiterHoldFilterInput, key: 'limiter_hold_filter' },
+            { input: limiterReleaseOrderInput, key: 'limiter_release_order' },
+            { input: limiterReleaseFilterInput, key: 'limiter_release_filter' },
         ].forEach(({ input, key }) => {
             if (input && input.value.trim() !== '') {
                 formData.append(key, input.value.trim());

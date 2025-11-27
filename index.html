@@ -54,7 +54,7 @@
 
                     <div class="upload-section expert-controls">
                         <label class="section-label">Expert Limiter Controls (Optional)</label>
-                        <p class="section-description">Override limiter attack, hold, and release (milliseconds). Leave blank to use the preset Matchering values.</p>
+                        <p class="section-description">Override attack, hold, release plus advanced filter settings. Leave blank to use the preset profiles.</p>
                         <div class="expert-grid">
                             <div class="form-field">
                                 <label for="limiter-attack">Attack (ms)</label>
@@ -67,6 +67,26 @@
                             <div class="form-field">
                                 <label for="limiter-release">Release (ms)</label>
                                 <input type="number" step="0.1" min="0.1" id="limiter-release" name="limiter_release" placeholder="Default 3000 ms">
+                            </div>
+                            <div class="form-field">
+                                <label for="limiter-attack-filter">Attack Filter Coefficient</label>
+                                <input type="number" step="0.1" id="limiter-attack-filter" name="limiter_attack_filter" placeholder="Default -2">
+                            </div>
+                            <div class="form-field">
+                                <label for="limiter-hold-order">Hold Filter Order</label>
+                                <input type="number" step="1" min="1" id="limiter-hold-order" name="limiter_hold_order" placeholder="Default 1">
+                            </div>
+                            <div class="form-field">
+                                <label for="limiter-hold-filter">Hold Filter Coefficient</label>
+                                <input type="number" step="0.1" min="0.1" id="limiter-hold-filter" name="limiter_hold_filter" placeholder="Default 7">
+                            </div>
+                            <div class="form-field">
+                                <label for="limiter-release-order">Release Filter Order</label>
+                                <input type="number" step="1" min="1" id="limiter-release-order" name="limiter_release_order" placeholder="Default 1">
+                            </div>
+                            <div class="form-field">
+                                <label for="limiter-release-filter">Release Filter Coefficient</label>
+                                <input type="number" step="0.1" min="0.1" id="limiter-release-filter" name="limiter_release_filter" placeholder="Default 800">
                             </div>
                         </div>
                     </div>

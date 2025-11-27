@@ -127,6 +127,10 @@
     color: #e4e3df;
     font-size: 1em;
 }
+.form-field small {
+    font-size: 0.8em;
+    color: rgba(228, 227, 223, 0.7);
+}
 
 .form-field input:focus {
     outline: none;

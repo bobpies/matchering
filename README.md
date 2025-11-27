@@ -48,9 +48,8 @@ python app.py
 
 ### Expert Limiter Controls
 
-- In the upload form, expand the expert area to set custom **attack**, **hold**, and **release** (milliseconds).
-- Leave any field blank to fall back to the Matchering defaults (Attack 1 ms / Hold 1 ms / Release 3000 ms).
-- The API exposes the values via `/api/status/<job_id>` and the downloads include both the standard and no-limiter renders.
+- The upload form now exposes: attack, hold, release, attack filter coefficient, hold filter order/coeff, and release filter order/coeff.
+- Leave fields blank to use presets; fill them to override the **Medium** profile. All values are returned via `/api/status/<job_id>` so automations know the exact limiter envelope.
 
 ### Loudness Presets
 

@@ -56,16 +56,31 @@ LOUDNESS_PRESETS = {
         'attack': 20.0,
         'hold': 2.0,
         'release': 4000.0,
+        'attack_filter_coefficient': -1.0,
+        'hold_filter_order': 1,
+        'hold_filter_coefficient': 4.0,
+        'release_filter_order': 2,
+        'release_filter_coefficient': 1200.0,
     },
     'medium': {
         'attack': 1.0,
         'hold': 1.0,
         'release': 3000.0,
+        'attack_filter_coefficient': -2.0,
+        'hold_filter_order': 1,
+        'hold_filter_coefficient': 7.0,
+        'release_filter_order': 1,
+        'release_filter_coefficient': 800.0,
     },
     'high': {
         'attack': 0.1,
         'hold': 120.0,
         'release': 500.0,
+        'attack_filter_coefficient': -5.0,
+        'hold_filter_order': 2,
+        'hold_filter_coefficient': 20.0,
+        'release_filter_order': 1,
+        'release_filter_coefficient': 300.0,
     }
 }
 LOUDNESS_VARIANTS = ['low', 'medium', 'high']
@@ -145,18 +160,31 @@ def parse_limiter_settings(form_data):
         'limiter_attack': 'attack',
         'limiter_hold': 'hold',
         'limiter_release': 'release',
+        'limiter_attack_filter': 'attack_filter_coefficient',
+        'limiter_hold_order': 'hold_filter_order',
+        'limiter_hold_filter': 'hold_filter_coefficient',
+        'limiter_release_order': 'release_filter_order',
+        'limiter_release_filter': 'release_filter_coefficient',
     }
     settings = {}
     for form_key, limiter_key in limiter_fields.items():
         raw_value = form_data.get(form_key)
         if raw_value in (None, ''):
             continue
-        try:
-            numeric_value = float(raw_value)
-        except ValueError:
-            raise ValueError(f"Invalid value for {form_key}. Please provide a number.")
-        if numeric_value <= 0:
-            raise ValueError(f"{form_key.replace('_', ' ').title()} must be greater than zero.")
+        if limiter_key in ['hold_filter_order', 'release_filter_order']:
+            try:
+                numeric_value = int(float(raw_value))
+            except ValueError:
+                raise ValueError(f"Invalid integer value for {form_key}.")
+            if numeric_value <= 0:
+                raise ValueError(f"{form_key.replace('_', ' ').title()} must be greater than zero.")
+        else:
+            try:
+                numeric_value = float(raw_value)
+            except ValueError:
+                raise ValueError(f"Invalid value for {form_key}. Please provide a number.")
+            if limiter_key in ['attack', 'hold', 'release', 'hold_filter_coefficient', 'release_filter_coefficient'] and numeric_value <= 0:
+                raise ValueError(f"{form_key.replace('_', ' ').title()} must be greater than zero.")
         settings[limiter_key] = numeric_value
     return settings
 
