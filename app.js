@@ -28,6 +28,7 @@ function initializeUpload() {
     const limiterHoldFilterInput = document.getElementById('limiter-hold-filter');
     const limiterReleaseOrderInput = document.getElementById('limiter-release-order');
     const limiterReleaseFilterInput = document.getElementById('limiter-release-filter');
+    const limiterThresholdInput = document.getElementById('limiter-threshold');
     
     let referenceCount = 0;
     const referenceFiles = [];
@@ -217,6 +218,7 @@ function initializeUpload() {
             { input: limiterHoldFilterInput, key: 'limiter_hold_filter' },
             { input: limiterReleaseOrderInput, key: 'limiter_release_order' },
             { input: limiterReleaseFilterInput, key: 'limiter_release_filter' },
+            { input: limiterThresholdInput, key: 'limiter_threshold' },
         ].forEach(({ input, key }) => {
             if (input && input.value.trim() !== '') {
                 formData.append(key, input.value.trim());
@@ -689,15 +691,28 @@ function formatFileSize(bytes) {
 function updateLimiterSummary(settings = {}) {
     const summaryEl = document.getElementById('limiter-settings-summary');
     if (!summaryEl) return;
+    const formatThreshold = (value) => {
+        const numeric = parseFloat(value);
+        if (!Number.isFinite(numeric) || numeric <= 0) {
+            return value;
+        }
+        const db = 20 * Math.log10(numeric);
+        return `${numeric} (${db.toFixed(2)} dBFS)`;
+    };
     const fields = [
-        { key: 'attack', label: 'Attack' },
-        { key: 'hold', label: 'Hold' },
-        { key: 'release', label: 'Release' },
+        { key: 'threshold', label: 'Threshold', formatter: formatThreshold },
+        { key: 'attack', label: 'Attack', unit: 'ms' },
+        { key: 'hold', label: 'Hold', unit: 'ms' },
+        { key: 'release', label: 'Release', unit: 'ms' },
     ];
     const parts = fields
         .map(field => {
             if (settings[field.key] === undefined) return null;
-            return `${field.label} ${settings[field.key]} ms`;
+            const rawValue = settings[field.key];
+            const formatted = field.formatter
+                ? field.formatter(rawValue)
+                : `${rawValue}${field.unit ? ` ${field.unit}` : ''}`;
+            return `${field.label} ${formatted}`;
         })
         .filter(Boolean);
     if (parts.length === 0) {

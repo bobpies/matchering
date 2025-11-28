@@ -51,6 +51,8 @@ RESULTS_FOLDER = Path('results')
 PREVIEWS_FOLDER = Path('previews')
 MAX_REFERENCES = 10
 ALLOWED_EXTENSIONS = {'wav', 'mp3', 'flac', 'aiff', 'm4a', 'ogg'}
+DEFAULT_THRESHOLD = (2**15 - 61) / 2**15
+
 LOUDNESS_PRESETS = {
     'low': {
         'attack': 20.0,
@@ -61,6 +63,7 @@ LOUDNESS_PRESETS = {
         'hold_filter_coefficient': 4.0,
         'release_filter_order': 2,
         'release_filter_coefficient': 1200.0,
+        'threshold': DEFAULT_THRESHOLD,
     },
     'medium': {
         'attack': 1.0,
@@ -71,19 +74,31 @@ LOUDNESS_PRESETS = {
         'hold_filter_coefficient': 7.0,
         'release_filter_order': 1,
         'release_filter_coefficient': 800.0,
+        'threshold': 0.95,
     },
     'high': {
-        'attack': 0.1,
-        'hold': 60.0,
-        'release': 250.0,
+        'attack': 1.0,
+        'hold': 1.0,
+        'release': 1000.0,
         'attack_filter_coefficient': -6.0,
         'hold_filter_order': 2,
         'hold_filter_coefficient': 15.0,
         'release_filter_order': 1,
         'release_filter_coefficient': 200.0,
+        'threshold': 0.85,
     }
 }
 LOUDNESS_VARIANTS = ['low', 'medium', 'high']
+LIMITER_FIELD_NAMES = {
+    'attack',
+    'hold',
+    'release',
+    'attack_filter_coefficient',
+    'hold_filter_order',
+    'hold_filter_coefficient',
+    'release_filter_order',
+    'release_filter_coefficient',
+}
 
 # Ensure directories exist
 UPLOAD_FOLDER.mkdir(exist_ok=True)
@@ -165,6 +180,7 @@ def parse_limiter_settings(form_data):
         'limiter_hold_filter': 'hold_filter_coefficient',
         'limiter_release_order': 'release_filter_order',
         'limiter_release_filter': 'release_filter_coefficient',
+        'limiter_threshold': 'threshold',
     }
     settings = {}
     for form_key, limiter_key in limiter_fields.items():
@@ -185,21 +201,31 @@ def parse_limiter_settings(form_data):
                 raise ValueError(f"Invalid value for {form_key}. Please provide a number.")
             if limiter_key in ['attack', 'hold', 'release', 'hold_filter_coefficient', 'release_filter_coefficient'] and numeric_value <= 0:
                 raise ValueError(f"{form_key.replace('_', ' ').title()} must be greater than zero.")
+            if limiter_key == 'threshold' and not (0 < numeric_value < 1):
+                raise ValueError("Limiter threshold must be between 0 and 1.")
         settings[limiter_key] = numeric_value
     return settings
 
 def build_config(limiter_settings=None):
     """Create a Matchering config, optionally overriding limiter values."""
-    if limiter_settings:
-        limiter = LimiterConfig(**limiter_settings)
-        return Config(limiter=limiter)
-    return Config()
+    if not limiter_settings:
+        return Config()
+    limiter_kwargs = {
+        key: value
+        for key, value in limiter_settings.items()
+        if key in LIMITER_FIELD_NAMES
+    }
+    config_kwargs = {}
+    if 'threshold' in limiter_settings:
+        config_kwargs['threshold'] = limiter_settings['threshold']
+    limiter = LimiterConfig(**limiter_kwargs) if limiter_kwargs else LimiterConfig()
+    return Config(limiter=limiter, **config_kwargs)
 
 def resolve_limiter_settings(variant, user_settings=None):
-    base = dict(LOUDNESS_PRESETS.get(variant, {}))
-    if variant == 'medium' and user_settings:
+    base = dict(LOUDNESS_PRESETS.get(variant, LOUDNESS_PRESETS['medium']))
+    if user_settings:
         base.update(user_settings)
-    return base or user_settings or LOUDNESS_PRESETS['medium']
+    return base
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
