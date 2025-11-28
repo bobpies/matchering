@@ -45,6 +45,14 @@ import numpy as np
 app = Flask(__name__, static_folder='.', static_url_path='')
 CORS(app)
 
+# Enable Matchering's internal logs to surface in Docker/stdout
+mg.log(
+    info_handler=print,
+    warning_handler=print,
+    debug_handler=print,
+    show_codes=True,
+)
+
 # Configuration
 UPLOAD_FOLDER = Path('uploads')
 RESULTS_FOLDER = Path('results')
