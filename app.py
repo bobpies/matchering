@@ -82,7 +82,7 @@ LOUDNESS_PRESETS = {
         'hold_filter_coefficient': 7.0,
         'release_filter_order': 1,
         'release_filter_coefficient': 800.0,
-        'threshold': 0.95,
+        'threshold': 0.9,
     },
     'high': {
         'attack': 1.0,
@@ -93,7 +93,7 @@ LOUDNESS_PRESETS = {
         'hold_filter_coefficient': 7.0,
         'release_filter_order': 1,
         'release_filter_coefficient': 800.0,
-        'threshold': 0.85,
+        'threshold': 0.7,
     }
 }
 LOUDNESS_VARIANTS = ['low', 'medium', 'high']
