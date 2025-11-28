@@ -81,7 +81,7 @@ LOUDNESS_PRESETS = {
         'hold': 1.0,
         'release': 3000.0,
         'attack_filter_coefficient': -2.0,
-        'hold_filter_order': 7.0,
+        'hold_filter_order': 1,
         'hold_filter_coefficient': 7.0,
         'release_filter_order': 1,
         'release_filter_coefficient': 800.0,
