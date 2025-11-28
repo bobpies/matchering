@@ -55,14 +55,14 @@ DEFAULT_THRESHOLD = (2**15 - 61) / 2**15
 
 LOUDNESS_PRESETS = {
     'low': {
-        'attack': 20.0,
-        'hold': 2.0,
-        'release': 4000.0,
-        'attack_filter_coefficient': -1.0,
+        'attack': 1.0,
+        'hold': 1.0,
+        'release': 3000.0,
+        'attack_filter_coefficient': -2.0,
         'hold_filter_order': 1,
-        'hold_filter_coefficient': 4.0,
-        'release_filter_order': 2,
-        'release_filter_coefficient': 1200.0,
+        'hold_filter_coefficient': 7.0,
+        'release_filter_order': 1,
+        'release_filter_coefficient': 800.0,
         'threshold': DEFAULT_THRESHOLD,
     },
     'medium': {
@@ -79,12 +79,12 @@ LOUDNESS_PRESETS = {
     'high': {
         'attack': 1.0,
         'hold': 1.0,
-        'release': 1000.0,
-        'attack_filter_coefficient': -6.0,
-        'hold_filter_order': 2,
-        'hold_filter_coefficient': 15.0,
+        'release': 3000.0,
+        'attack_filter_coefficient': -2.0,
+        'hold_filter_order': 7.0,
+        'hold_filter_coefficient': 7.0,
         'release_filter_order': 1,
-        'release_filter_coefficient': 200.0,
+        'release_filter_coefficient': 800.0,
         'threshold': 0.85,
     }
 }
