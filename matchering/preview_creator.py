@@ -75,10 +75,16 @@ def create_preview(
             result_piece, fade_size
         )
 
+    def normalize_piece(piece: np.ndarray) -> np.ndarray:
+        peak = np.max(np.abs(piece))
+        if peak <= 0:
+            return piece
+        return piece * (config.threshold / peak)
+
     if preview_target:
         save(
             preview_target.file,
-            target_piece,
+            normalize_piece(target_piece),
             config.internal_sample_rate,
             preview_target.subtype,
             "target preview",
@@ -87,7 +93,7 @@ def create_preview(
     if preview_result:
         save(
             preview_result.file,
-            result_piece,
+            normalize_piece(result_piece),
             config.internal_sample_rate,
             preview_result.subtype,
             "result preview",

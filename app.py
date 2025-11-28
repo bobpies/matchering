@@ -83,6 +83,8 @@ LOUDNESS_PRESETS = {
         'release_filter_order': 1,
         'release_filter_coefficient': 800.0,
         'threshold': 0.9,
+        'post_normalize': True,
+        'post_normalize_ceiling': DEFAULT_THRESHOLD,
     },
     'high': {
         'attack': 1.0,
@@ -94,6 +96,8 @@ LOUDNESS_PRESETS = {
         'release_filter_order': 1,
         'release_filter_coefficient': 800.0,
         'threshold': 0.7,
+        'post_normalize': True,
+        'post_normalize_ceiling': DEFAULT_THRESHOLD,
     }
 }
 LOUDNESS_VARIANTS = ['low', 'medium', 'high']
@@ -107,6 +111,36 @@ LIMITER_FIELD_NAMES = {
     'release_filter_order',
     'release_filter_coefficient',
 }
+
+
+def apply_post_limiter_normalization(file_paths, ceiling):
+    """Normalize rendered files to a target ceiling after limiting."""
+    if not isinstance(file_paths, (list, tuple)):
+        file_paths = [file_paths]
+    for file_path in file_paths:
+        if not file_path:
+            continue
+        file_path = Path(file_path)
+        if not file_path.exists():
+            continue
+        try:
+            info = sf.info(str(file_path))
+            audio, sample_rate = sf.read(str(file_path), dtype='float32')
+        except Exception as exc:
+            print(f"Failed to read {file_path} for normalization: {exc}")
+            continue
+        peak = float(np.max(np.abs(audio)))
+        if peak <= 0 or np.isclose(peak, 0):
+            continue
+        if np.isclose(peak, ceiling):
+            continue
+        gain = ceiling / peak
+        audio *= gain
+        try:
+            sf.write(str(file_path), audio, sample_rate, subtype=info.subtype)
+            print(f"Applied {20 * np.log10(gain):.2f} dB make-up gain to {file_path.name}")
+        except Exception as exc:
+            print(f"Failed to write normalized file {file_path}: {exc}")
 
 # Ensure directories exist
 UPLOAD_FOLDER.mkdir(exist_ok=True)
@@ -276,6 +310,8 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
         for variant in LOUDNESS_VARIANTS:
             variant_settings = resolve_limiter_settings(variant, limiter_settings)
             config = build_config(variant_settings)
+            post_norm_ceiling = variant_settings.get('post_normalize_ceiling')
+            apply_post_norm = variant_settings.get('post_normalize') and post_norm_ceiling
             
             if variant == 'medium':
                 mg.process(
@@ -289,6 +325,11 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
                     ],
                     config=config,
                 )
+                if apply_post_norm:
+                    apply_post_limiter_normalization(
+                        [wav_16bit_medium, wav_24bit_medium],
+                        post_norm_ceiling,
+                    )
                 variant_audio_paths['limited'] = wav_24bit_medium
                 variant_audio_paths['nolimiter'] = wav_24bit_no_limiter
                 variant_audio_paths['nolimiter_normalized'] = wav_24bit_no_limiter_normalized
@@ -302,6 +343,8 @@ def process_mastering(target_path, reference_path, job_id, reference_index, limi
                     ],
                     config=config,
                 )
+                if apply_post_norm:
+                    apply_post_limiter_normalization(variant_path, post_norm_ceiling)
                 variant_audio_paths[variant] = variant_path
         
         preview_paths = {
